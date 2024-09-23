@@ -1,0 +1,117 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<div class="container" id="addNewRecordForm" style="display:none">
+    @Html.Partial("_AddNewDetailPartial")
+</div>
+<div id="detailList" class="container">
+    <h2>List of Products</h2>
+    <p>
+        <input type="button" value="Add New Product" id="btnAdd" class="btn btn-primary my-2" />
+    </p>
+    <div>
+        <table id="grid"></table>
+        <div id="pager"></div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/redmond/jquery-ui.css">
+
+<script>
+    $(document).ready(() => {
+        $("#grid").jqGrid({
+            url: "/detail/GetData",
+            datatype: "json",
+            colNames: ["Id", "Email", "Phone Number"],
+            colModel: [{ name: "Id", key: true, hidden: true },
+            { name: "Email", editable: true, searchoptions: { sopt: ['eq'] } },
+            { name: "PhoneNumber", editable: true }
+            ],
+            height: "250",
+            caption: "Product Records",
+            //loadonce: true,
+            //jsonReader: {
+            //    root: (obj) => { return obj },
+            //    repeatitems: false
+            //}
+
+            pager: "#pager",
+            rowNum: 5,
+            rowList: [5, 10, 15],
+            sortname: 'id',
+            sortorder: 'asc',
+            viewrecord: true,
+            gridComplete: () => {
+                $("#grid").jqGrid('navGrid', '#pager', { edit: true, add: true, del: true, search: true, refresh: true },
+                    {
+                        //edit
+                        url: "/detail/edit",
+                        closeAfterEdit: true,
+                        width: 600,
+                        afterSubmit: (response, postdata) => {
+                            var result = JSON.parse(response.responseText);
+                            if (result.success) {
+                                alert(result.message)
+                                return [true];
+                            }
+                            else {
+                                alert(result.message)
+                                return [false];
+                            }
+                        }
+
+
+                    }, {
+
+                    //add
+                    url: "/detail/add",
+                    closeAfterAdd: true,
+                    width: 600,
+                    afterSubmit: (response, postdata) => {
+
+                        var result = JSON.parse(response.responseText);
+                        if (result.success) {
+                            alert(result.message)
+                            return [true];
+
+                        } else {
+                            alert(result.message)
+                            return [false];
+                        }
+                    }
+
+                }, {
+                    url: "/detail/Delete",
+                    afterSubmit: (response, postdata) => {
+                        var result = JSON.parse(response.responseText);
+                        if (result.success) {
+                            alert(result.message)
+                            return [true];
+                        }
+                        else {
+                            alert(result.message)
+                            return [false];
+                        }
+                    }
+
+                },
+                    {
+                        multipleSearch: false,
+                        closeAfterSearch: true
+                    }
+                );
+                $("#refreshButton").click(() => {
+                    $("#grid").jqGrid('setGridParam', { search: false });
+
+                    $("#grid").jqGrid('setGridParam', { page: 1 }).trigger('reloadGrid')
+                })
+            }
+
+
+        })
+    })
+</script>

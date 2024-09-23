@@ -1,0 +1,97 @@
+﻿@model IEnumerable<ContactAppMiniProject.Models.User>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<p>
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary my-2" })
+</p>
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsAdmin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>Options</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var rowColor = item.IsActive ? "" : "table-danger";
+
+            <tr class="@rowColor">
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsAdmin)
+                </td>
+                <td>
+                    @Html.CheckBoxFor(modelItem => item.IsActive, new { id = "active", onclick = $"deleteUser('{@item.Id}', this)" })
+                </td>
+
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new {@class = "btn btn-info", id = $"{@item.Id}", style= item.IsActive ? "":"display:none;" })
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+
+    function deleteUser(itemId, checkbox) {
+
+        var getConfirm;
+
+        var row = $(checkbox).closest('tr')
+
+        if (!checkbox.checked) {
+            getConfirm = confirm("You want to Delete this user?")
+        }
+        else {
+            getConfirm = confirm("You want to Re-Activate this user?")
+        }
+        if (getConfirm) {
+            $.ajax({
+                url: "User/Delete",
+                type: "POST",
+                data: { id: itemId },
+                success: (active) => {
+                    console.log(active.message)
+                    if (active.active) {
+                        row.addClass("table-danger")
+                        $(`#${itemId}`).hide()
+                        alert(active.message)
+                        
+                    }
+                    else {
+                        checkbox.checked = !checkbox.checked;
+                        row.removeClass("table-danger")
+                        $(`#${itemId}`).show()
+                        alert(active.message)
+                        
+                    }
+                },
+                error: (err) => {
+                    console.log(err)
+                }
+            })
+        }
+        else {
+            checkbox.checked = !checkbox.checked;
+        }
+
+    }
+
+</script>
+

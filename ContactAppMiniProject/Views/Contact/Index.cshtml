@@ -1,0 +1,201 @@
+﻿@model IEnumerable<ContactAppMiniProject.Models.Contact>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container" id="contactList">
+    <button class="btn btn-primary my-5" id="btnContactAdd" onclick="addContact()">Add New Contact</button>
+    <table class="table table-borderless">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.FirstName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.LastName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.IsActive)
+                </th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody id="tblBody">
+        </tbody>
+    </table>
+</div>
+<div id="addcontact" style="display:none" class="container">
+    @Html.Partial("addcontact")
+</div>
+<div id="editcontact" style="display:none" class="container">
+    @Html.Partial("_EditContactPartialView")
+</div>
+
+
+
+
+<script>
+    $(document).ready(() => {
+        loadContacts()
+    })
+
+    function loadContacts() {
+
+        $.ajax({
+            url: "/Contact/GetContacts",
+            type: "GET",
+            success: (data) => {
+                $("#tblBody").empty()
+
+                $.each(data, (idx, contact) => {
+                    var row =
+                        `<tr class="${contact.IsActive?"":"table-danger"}">
+                        <td>
+                            <span>${contact.FirstName}</span>
+                        </td>
+                        <td>
+                            ${contact.LastName}
+                        </td>
+                        <td>
+                            <input type="checkbox" style:"margin=auto" ${contact.IsActive? "checked":""} value="${contact.IsActive}" onclick=deleteContact('${contact.Id}',this) />
+                        </td>
+                        <td  id="${contact.Id}" style="display: ${contact.IsActive ? "" : "none"};">
+                            <input type= "button" value = "Edit" class="btn btn-primary py-1" style= "float:center; height: 40px;" onclick=EditContact('${contact.Id}')></input>
+                            <input type= "button" value = "Contact Details" class="btn btn-info py-1" style= "float:center; height: 40px;" onclick=contactDetails('${contact.Id}')></input>
+                        </td >
+                        <td></td>
+                    </tr >`
+                    $("#tblBody").append(row)
+                })
+            },
+            error: (err) => {
+                $("tblBody").empty()
+                console.log(err)
+            }
+        })
+    }
+
+    function contactDetails(contactId) {
+        console.log(contactId)
+        $.ajax({
+            url: "/Detail/Index",
+            type: "POST",
+            data: { id: contactId },
+            success: (result) => {
+                console.log("button pressed")
+                $("body").html($(result).find("body").html());
+
+                // Optionally update the browser's URL without reloading the page
+                history.pushState(null, '', '/detail/index');
+                location.reload();
+
+            },
+            error: (err) => {
+                console.log(err)
+            }
+
+        })
+    }
+
+    function addContact() {
+        $("#contactList").hide()
+        $("#addcontact").show()
+    }
+
+    function deleteContact(itemId, checkbox) {
+        console.log("aaaa")
+
+        var getConfirm;
+
+        var row = $(checkbox).closest('tr')
+        console.log(row)
+        if (!checkbox.checked) {
+            getConfirm = confirm("You want to Delete this Contact?")
+        }
+        else {
+            getConfirm = confirm("You want to Re-Activate this Contact?")
+        }
+        if (getConfirm) {
+            $.ajax({
+                url: "/Contact/DeleteContact",
+                type: "POST",
+                data: { id: itemId },
+                success: () => {
+
+                    if (!checkbox.checked) {
+                        row.addClass("table-danger")
+                        $(`#${itemId}`).hide()
+                        alert("Contact Deleted Successfully!")
+                    }
+                    else {
+                        row.removeClass("table-danger")
+                        $(`#${itemId}`).show()
+                        alert("Contact Re-activated!")
+                    }
+                },
+                error: (err) => {
+                    console.log(err)
+                }
+            })
+        }
+        else {
+            checkbox.checked = !checkbox.checked;
+        }
+    }
+
+    function EditContact(contactId) {
+        $("#contactList").hide()
+
+        $.ajax({
+            url: "/Contact/GetContact",
+            type: "GET",
+            data: { id: contactId },
+            success: (data) => {
+                $("#cid").val(data.Id)
+                $("#fcname").val(data.FirstName)
+                $("#lcname").val(data.LastName)
+                $("#editcontact").show()
+            },
+            error: (err) => {
+                alert("Couldnt find record")
+            }
+        })
+
+
+
+    }
+    $("#btnUpdate").click(() => {
+        event.preventDefault();
+        var myData = {
+            Id: $("#cid").val(),
+            FirstName: $("#fcname").val(),
+            LastName: $("#lcname").val()
+        }
+
+        $.ajax({
+            url: "/Contact/EditContact",
+            type: "POST",
+            data: myData,
+            success: () => {
+                alert("User Updated")
+                $("#editcontact").hide();
+                $("#contactList").show();
+                loadContacts()
+            },
+            error: () => {
+                alert("There was an error editing the record")
+            }
+
+        })
+
+
+
+
+    })
+
+
+
+</script>
