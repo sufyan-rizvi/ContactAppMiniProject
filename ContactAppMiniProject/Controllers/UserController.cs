@@ -6,6 +6,7 @@ using System.ServiceModel.Channels;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Web.UI.WebControls;
 using ContactApp_MiniProject.ViewModels;
 using ContactAppMiniProject.Data;
 using ContactAppMiniProject.Models;
@@ -164,9 +165,12 @@ namespace ContactAppMiniProject.Controllers
                 using (var txn = s.BeginTransaction())
                 {
                     var existingUser = s.Query<User>().FirstOrDefault(u => u.Id == user.Id);
-
+                    if (User.Identity.Name == existingUser.UserName)
+                    {
+                        FormsAuthentication.SetAuthCookie(user.UserName, true);
+                    }
                     existingUser.UserName = user.UserName;
-
+                    
                     s.Update(existingUser);
                     txn.Commit();
                     return RedirectToAction("Index");

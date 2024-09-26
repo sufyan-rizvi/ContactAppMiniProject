@@ -30,7 +30,7 @@ namespace ContactAppMiniProject.Controllers
             {
                 var id = (Guid)Session["ContactId"];
                 var detailList = s.Query<ContactDetail>().Where(d => d.Contact.Id == id).ToList();
-                if (_search && searchField == "Name" && searchOper == "eq")
+                if (_search && searchField == "Email" && searchOper == "eq")
                 {
                     detailList = detailList.Where(q => q.Email == searchString).ToList();
                 }
