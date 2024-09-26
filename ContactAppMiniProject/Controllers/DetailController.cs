@@ -66,18 +66,7 @@ namespace ContactAppMiniProject.Controllers
                     total = totalPages,
                     page,
                     records = totalCount,
-                    //rows = (from product in products
-                    //        orderby sidx + " " + sord
-                    //        select new
-                    //        {
-                    //            cell = new string[]
-                    //            {
-                    //                product.Id.ToString(),
-                    //                product.Name,
-                    //                product.Description,
-                    //                product.Price.ToString()
-                    //            }
-                    //        }).Skip((page - 1) * rows).Take(rows).ToArray()
+                    
 
                     rows = detailList.Select(p => new
                     {
@@ -91,6 +80,18 @@ namespace ContactAppMiniProject.Controllers
                     }).Skip((page - 1) * rows).Take(rows).ToArray()
                 };
 
+                //rows = (from product in products
+                //        orderby sidx + " " + sord
+                //        select new
+                //        {
+                //            cell = new string[]
+                //            {
+                //                product.Id.ToString(),
+                //                product.Name,
+                //                product.Description,
+                //                product.Price.ToString()
+                //            }
+                //        }).Skip((page - 1) * rows).Take(rows).ToArray()
 
                 //        var result = products.OrderBy(sidx + " " + sord)
                 //.Select(product => new

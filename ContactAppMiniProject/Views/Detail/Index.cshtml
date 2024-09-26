@@ -4,16 +4,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Index</h2>
-
-<div class="container" id="addNewRecordForm" style="display:none">
-    @Html.Partial("_AddNewDetailPartial")
-</div>
 <div id="detailList" class="container">
-    <h2>List of Products</h2>
-    <p>
-        <input type="button" value="Add New Product" id="btnAdd" class="btn btn-primary my-2" />
-    </p>
+    <h2 class="m-2">List of Contact Details</h2>
     <div>
         <table id="grid"></table>
         <div id="pager"></div>
@@ -26,12 +18,13 @@
         $("#grid").jqGrid({
             url: "/detail/GetData",
             datatype: "json",
-            colNames: ["Id", "Email", "Phone Number"],
+            colNames: ["Id", "Email", "PhoneNumber"],
             colModel: [{ name: "Id", key: true, hidden: true },
             { name: "Email", editable: true, searchoptions: { sopt: ['eq'] } },
             { name: "PhoneNumber", editable: true }
             ],
             height: "250",
+            width:"1300",
             caption: "Product Records",
             //loadonce: true,
             //jsonReader: {
@@ -42,9 +35,9 @@
             pager: "#pager",
             rowNum: 5,
             rowList: [5, 10, 15],
-            sortname: 'id',
+            sortname: 'Id',
             sortorder: 'asc',
-            viewrecord: true,
+            viewrecords: true,
             gridComplete: () => {
                 $("#grid").jqGrid('navGrid', '#pager', { edit: true, add: true, del: true, search: true, refresh: true },
                     {
